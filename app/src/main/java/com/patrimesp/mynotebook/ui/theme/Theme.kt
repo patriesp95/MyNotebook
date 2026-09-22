@@ -1,56 +1,33 @@
 package com.patrimesp.mynotebook.ui.theme
 
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple,
-    secondary = White,
-    tertiary = Black
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
-)
+import androidx.compose.ui.res.colorResource
+import com.patrimesp.mynotebook.R
 
 @Composable
 fun MyNotebookTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = darkColorScheme(
+        primary = colorResource(R.color.purple_500),
+        onPrimary = colorResource(R.color.white),
+        secondary = colorResource(R.color.purple_200),
+        onSecondary = colorResource(R.color.black),
+        tertiary = colorResource(R.color.teal_200),
+        onTertiary = colorResource(R.color.black),
+        background = colorResource(R.color.purple_700),
+        onBackground = colorResource(R.color.white),
+        surface = colorResource(R.color.purple_700),
+        onSurface = colorResource(R.color.white),
+        surfaceVariant = colorResource(R.color.purple_500),
+        onSurfaceVariant = colorResource(R.color.white),
+        outline = colorResource(R.color.purple_200)
+    )
 
     MaterialTheme(
-        colorScheme = DarkColorScheme,
+        colorScheme = colorScheme,
         typography = Typography,
         content = content
     )
