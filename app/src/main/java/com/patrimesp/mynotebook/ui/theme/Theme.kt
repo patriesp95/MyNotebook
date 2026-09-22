@@ -11,9 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Purple,
+    secondary = White,
+    tertiary = Black
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -50,7 +50,7 @@ fun MyNotebookTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = DarkColorScheme,
         typography = Typography,
         content = content
     )
