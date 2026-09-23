@@ -2,8 +2,10 @@ package com.patrimesp.mynotebook.data.di
 
 import com.patrimesp.mynotebook.data.datasource.api.ApiConfig.BASE_URL
 import com.patrimesp.mynotebook.data.datasource.api.ApiService
-import com.patrimesp.mynotebook.data.repository.PhraseRepositoryImpl
-import com.patrimesp.mynotebook.domain.repository.PhraseRepository
+import com.patrimesp.mynotebook.data.repository.notes.NoteRepositoryImpl
+import com.patrimesp.mynotebook.data.repository.phrases.PhraseRepositoryImpl
+import com.patrimesp.mynotebook.domain.repository.notes.NoteRepository
+import com.patrimesp.mynotebook.domain.repository.phrases.PhraseRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,6 +22,10 @@ object DataModule {
     @Provides
     @Singleton
     fun provideMainRepository(api: ApiService): PhraseRepository = PhraseRepositoryImpl(api)
+
+    @Provides
+    @Singleton
+    fun provideNoteRepository(api: ApiService): NoteRepository = NoteRepositoryImpl(api)
 
     @Provides
     @Singleton

@@ -36,11 +36,11 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun NotesScreen(notesViewModel: NotesViewModel = hiltViewModel()) {
-    NotesContent()
+    NotesContent(notesViewModel)
 }
 
 @Composable
-private fun NotesContent() {
+private fun NotesContent(notesViewModel: NotesViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -54,13 +54,13 @@ private fun NotesContent() {
             )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            FabDialog(Modifier.align(Alignment.TopEnd).padding(16.dp))
+            FabDialog(Modifier.align(Alignment.TopEnd).padding(16.dp), notesViewModel = notesViewModel)
         }
     }
 }
 
 @Composable
-fun FabDialog(modifier: Modifier) {
+fun FabDialog(modifier: Modifier, notesViewModel: NotesViewModel, ) {
     var showDialog by rememberSaveable { mutableStateOf(false) }
 
     FloatingActionButton(
@@ -73,7 +73,10 @@ fun FabDialog(modifier: Modifier) {
     AddTasksDialog(
         show = showDialog,
         onDismiss = { showDialog = false },
-        onTaskAdded = { showDialog = false }
+        onTaskAdded = {
+            showDialog = false
+            notesViewModel.addNote(it)
+        }
     )
 }
 

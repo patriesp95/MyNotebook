@@ -1,9 +1,9 @@
-package com.patrimesp.mynotebook.data.response
+package com.patrimesp.mynotebook.domain.entity.phrases
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class PhraseResponse (
+data class Phrase(
     val author: String,
     val text: String
 )
