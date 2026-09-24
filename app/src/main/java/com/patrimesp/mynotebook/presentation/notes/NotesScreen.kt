@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -22,7 +24,10 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -35,10 +40,12 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.patrimesp.mynotebook.domain.entity.notes.Note
 import com.patrimesp.mynotebook.ui.theme.MyNotebookTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun NotesScreen(notesViewModel: NotesViewModel = hiltViewModel()) {
     val uiState by notesViewModel.uiState.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) {
         notesViewModel.getNotes()
     }
@@ -152,19 +159,52 @@ fun AddTasksDialog(
 
 @Composable
 fun NotesList(uiState: NotesUiState) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        itemsIndexed(uiState.notes, key = {_,item -> item.id }){ _, item ->
-            Row {
-                Text(
-                    text = item.text,
-                    color = MaterialTheme.colorScheme.onBackground
+    val coroutineScope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
+    val showScrollToTop by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex >= 20
+        }
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            state = listState
+        ) {
+            itemsIndexed(uiState.notes, key = { _, note -> note.id }) { _, note ->
+                NoteItem(note)
+            }
+        }
+
+        if (showScrollToTop) {
+            FloatingActionButton(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+                onClick = {
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(0)
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowUp,
+                    contentDescription = "Volver al principio"
                 )
             }
         }
+    }
+}
+
+@Composable
+fun NoteItem(note: Note) {
+    Row {
+        Text(
+            text = note.text,
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }
 

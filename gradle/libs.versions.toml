@@ -16,6 +16,7 @@ lyfecycle = "2.11.0"
 navigation3 = "1.1.7"
 datastore = "1.2.1"
 retrofit = "3.0.0"
+foundation = "1.12.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -44,6 +45,7 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
 androidx-icons = {module = "androidx.compose.material:material-icons-core"}
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
