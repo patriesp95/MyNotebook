@@ -3,11 +3,14 @@ package com.patrimesp.mynotebook.presentation.notes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
@@ -18,29 +21,42 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.patrimesp.mynotebook.domain.entity.notes.Note
 import com.patrimesp.mynotebook.ui.theme.MyNotebookTheme
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun NotesScreen(notesViewModel: NotesViewModel = hiltViewModel()) {
-    NotesContent(notesViewModel)
+    val uiState by notesViewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        notesViewModel.getNotes()
+    }
+    NotesContent(
+        uiState = uiState,
+        onTextChanged = { notesViewModel.onTextChanged(it) },//es lo mismo que la notacion de dos puntos notesViewModel::addNote
+        onShowDialogChanged = { notesViewModel.onShowDialogChanged(it)},
+        onNoteAdded = notesViewModel::addNote
+    )
 }
 
 @Composable
-private fun NotesContent(notesViewModel: NotesViewModel) {
+private fun NotesContent(
+    uiState: NotesUiState,
+    onTextChanged: (String) -> Unit,
+    onShowDialogChanged: (Boolean) -> Unit,
+    onNoteAdded: (String) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -53,36 +69,52 @@ private fun NotesContent(notesViewModel: NotesViewModel) {
                 )
             )
     ) {
+        NotesList(uiState)
         Box(modifier = Modifier.fillMaxSize()) {
-            FabDialog(Modifier.align(Alignment.TopEnd).padding(16.dp), notesViewModel = notesViewModel)
+            FabDialog(
+                modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
+                uiState = uiState,
+                onTextChanged = onTextChanged,
+                onShowDialogChanged = onShowDialogChanged,
+                onNoteAdded = onNoteAdded
+            )
         }
+
     }
 }
 
 @Composable
-fun FabDialog(modifier: Modifier, notesViewModel: NotesViewModel, ) {
-    var showDialog by rememberSaveable { mutableStateOf(false) }
-
+fun FabDialog(
+    modifier: Modifier,
+    uiState: NotesUiState,
+    onTextChanged: (String) -> Unit,
+    onShowDialogChanged: (Boolean) -> Unit,
+    onNoteAdded: (String) -> Unit
+) {
     FloatingActionButton(
-        onClick = { showDialog = true },
+        onClick = { onShowDialogChanged(true) },
         modifier = modifier
     ) {
         Icon(Icons.Filled.Add, contentDescription = "")
     }
 
     AddTasksDialog(
-        show = showDialog,
-        onDismiss = { showDialog = false },
-        onTaskAdded = {
-            showDialog = false
-            notesViewModel.addNote(it)
-        }
+        uiState = uiState,
+        show = uiState.showDialog,
+        onDismiss = { onShowDialogChanged(false) },
+        onTextChanged = onTextChanged,
+        onNoteAdded = onNoteAdded
     )
 }
 
 @Composable
-fun AddTasksDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) -> Unit){
-    var myTask by remember { mutableStateOf("") }
+fun AddTasksDialog(
+    uiState: NotesUiState,
+    show: Boolean,
+    onDismiss: () -> Unit,
+    onTextChanged: (String) -> Unit,
+    onNoteAdded: (String) -> Unit
+) {
     if(show) {
         Dialog(onDismissRequest = { onDismiss() }) {
             Column(
@@ -100,8 +132,8 @@ fun AddTasksDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) -
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 OutlinedTextField(
-                    value = myTask,
-                    onValueChange = { myTask = it },
+                    value = uiState.text,
+                    onValueChange = onTextChanged,
                     shape = OutlinedTextFieldDefaults.shape,
                     singleLine = true,
                     maxLines = 1,
@@ -109,7 +141,7 @@ fun AddTasksDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) -
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 Button(onClick = {
-                    onTaskAdded(myTask)
+                    onNoteAdded(uiState.text)
                 }, modifier = Modifier.fillMaxWidth()) {
                     Text("Añadir tarea")
                 }
@@ -118,14 +150,38 @@ fun AddTasksDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) -
     }
 }
 
+@Composable
+fun NotesList(uiState: NotesUiState) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        itemsIndexed(uiState.notes, key = {_,item -> item.id }){ _, item ->
+            Row {
+                Text(
+                    text = item.text,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun PhrasesScreenPreview() {
+private fun NotesScreenPreview() {
     MyNotebookTheme {
-        AddTasksDialog(
-            show = true,
-            onDismiss = {},
-            onTaskAdded = {}
+        NotesContent(
+            uiState = NotesUiState(
+                notes = listOf(
+                    Note(text = "Preparar la compra", id = "note-1"),
+                    Note(text = "Terminar el proyecto", id = "note-2")
+                )
+            ),
+            onTextChanged = {},
+            onShowDialogChanged = {},
+            onNoteAdded = {}
         )
     }
 }

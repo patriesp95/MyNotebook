@@ -1,6 +1,7 @@
 package com.patrimesp.mynotebook.data.datasource.api
 
 import com.patrimesp.mynotebook.data.request.notes.NoteRequest
+import com.patrimesp.mynotebook.data.response.notes.NoteDataResponse
 import com.patrimesp.mynotebook.data.response.notes.NoteResponse
 import com.patrimesp.mynotebook.data.response.phrases.PhraseResponse
 import retrofit2.http.Body
@@ -15,4 +16,8 @@ interface ApiService {
 
     @POST("notes/.json")
     suspend fun addNote(@Body note: NoteRequest): NoteResponse
+
+    @GET("notes/.json")
+    suspend fun getNotes(): Map<String, NoteDataResponse>?
+
 }
