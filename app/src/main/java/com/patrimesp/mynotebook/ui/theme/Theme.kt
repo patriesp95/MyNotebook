@@ -18,7 +18,7 @@ fun MyNotebookTheme(
         tertiary = colorResource(R.color.teal_200),
         onTertiary = colorResource(R.color.black),
         background = colorResource(R.color.purple_700),
-        onBackground = colorResource(R.color.white),
+        onBackground = colorResource(R.color.purple_100),
         surface = colorResource(R.color.purple_700),
         onSurface = colorResource(R.color.white),
         surfaceVariant = colorResource(R.color.purple_500),
