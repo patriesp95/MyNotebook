@@ -5,6 +5,7 @@ import com.patrimesp.mynotebook.data.response.notes.NoteDataResponse
 import com.patrimesp.mynotebook.data.response.notes.NoteResponse
 import com.patrimesp.mynotebook.data.response.phrases.PhraseResponse
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -20,4 +21,8 @@ interface ApiService {
     @GET("notes/.json")
     suspend fun getNotes(): Map<String, NoteDataResponse>?
 
+    @DELETE("notes/{id}.json")
+    suspend fun deleteNote(@Path("id") id: String)
+
 }
+

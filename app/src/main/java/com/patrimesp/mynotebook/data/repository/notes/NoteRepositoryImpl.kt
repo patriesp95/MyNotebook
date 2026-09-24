@@ -18,4 +18,8 @@ class NoteRepositoryImpl @Inject constructor(val api: ApiService): NoteRepositor
             .orEmpty()
             .map { (id, response) -> response.toDomain(id) }
     }
+
+    override suspend fun deleteNote(id: String) {
+        return api.deleteNote(id)
+    }
 }

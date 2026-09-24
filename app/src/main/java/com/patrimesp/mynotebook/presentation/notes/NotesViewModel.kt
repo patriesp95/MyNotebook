@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.patrimesp.mynotebook.domain.entity.notes.Note
 import com.patrimesp.mynotebook.domain.usecase.notes.AddNoteUseCase
+import com.patrimesp.mynotebook.domain.usecase.notes.DeleteNoteUseCase
 import com.patrimesp.mynotebook.domain.usecase.notes.GetNotesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NotesViewModel @Inject constructor(
     val addNoteUseCase: AddNoteUseCase,
+    val deleteNoteUseCase: DeleteNoteUseCase,
     val getNotesUseCase: GetNotesUseCase
 ): ViewModel() {
 
@@ -35,10 +37,28 @@ class NotesViewModel @Inject constructor(
     }
 
     fun addNote(text: String) {
+        val trimmedText = text.trim()
+        if (trimmedText.isEmpty()) return
+
         viewModelScope.launch {
             _uiState.update { state -> state.copy(loading = true) }
             try {
-                addNoteUseCase(text)
+                addNoteUseCase(trimmedText)
+                val notes = getNotesUseCase()
+                _uiState.update { state ->
+                    state.copy(loading = false, notes = notes, showDialog = false, text = "")
+                }
+            } catch (error: Exception) {
+                _uiState.update { state -> state.copy(loading = false, error = error.message) }
+            }
+        }
+    }
+
+    fun deleteNote(noteId: String) {
+        viewModelScope.launch {
+            _uiState.update { state -> state.copy(loading = true) }
+            try {
+                deleteNoteUseCase(noteId)
                 val notes = getNotesUseCase()
                 _uiState.update { state ->
                     state.copy(loading = false, notes = notes, showDialog = false, text = "")
