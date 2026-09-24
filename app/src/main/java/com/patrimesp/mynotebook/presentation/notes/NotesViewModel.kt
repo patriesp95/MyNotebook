@@ -24,16 +24,18 @@ class NotesViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(NotesUiState())
     val uiState: StateFlow<NotesUiState> = _uiState.asStateFlow()
 
-    fun getNotes() {
+    fun getNotes(): List<Note> {
+        var notes: List<Note> = emptyList()
         viewModelScope.launch {
             _uiState.update { it.copy(loading = true) }
             try {
-                val notes = getNotesUseCase()
+                notes = getNotesUseCase()
                 _uiState.update { state -> state.copy(loading = false, notes = notes) }
             } catch (error: Exception) {
                 _uiState.update { state -> state.copy(loading = false, error = error.message) }
             }
         }
+        return notes
     }
 
     fun addNote(text: String) {
@@ -44,7 +46,7 @@ class NotesViewModel @Inject constructor(
             _uiState.update { state -> state.copy(loading = true) }
             try {
                 addNoteUseCase(trimmedText)
-                val notes = getNotesUseCase()
+                val notes = getNotes()
                 _uiState.update { state ->
                     state.copy(loading = false, notes = notes, showDialog = false, text = "")
                 }
@@ -59,7 +61,7 @@ class NotesViewModel @Inject constructor(
             _uiState.update { state -> state.copy(loading = true) }
             try {
                 deleteNoteUseCase(noteId)
-                val notes = getNotesUseCase()
+                val notes = getNotes()
                 _uiState.update { state ->
                     state.copy(loading = false, notes = notes, showDialog = false, text = "")
                 }
