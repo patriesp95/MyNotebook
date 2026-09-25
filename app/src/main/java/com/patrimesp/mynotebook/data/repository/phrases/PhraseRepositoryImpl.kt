@@ -1,6 +1,6 @@
 package com.patrimesp.mynotebook.data.repository.phrases
 
-import com.patrimesp.mynotebook.data.datasource.api.ApiService
+import com.patrimesp.mynotebook.data.api.ApiService
 import com.patrimesp.mynotebook.data.mapper.toDomain
 import com.patrimesp.mynotebook.domain.entity.phrases.Phrase
 import com.patrimesp.mynotebook.domain.repository.phrases.PhraseRepository

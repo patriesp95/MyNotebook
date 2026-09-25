@@ -1,7 +1,8 @@
 package com.patrimesp.mynotebook.data.di
 
-import com.patrimesp.mynotebook.data.datasource.api.ApiConfig.BASE_URL
-import com.patrimesp.mynotebook.data.datasource.api.ApiService
+import com.patrimesp.mynotebook.data.api.ApiConfig.BASE_URL
+import com.patrimesp.mynotebook.data.api.ApiService
+import com.patrimesp.mynotebook.data.database.datasource.local.NoteLocalDataSource
 import com.patrimesp.mynotebook.data.repository.notes.NoteRepositoryImpl
 import com.patrimesp.mynotebook.data.repository.phrases.PhraseRepositoryImpl
 import com.patrimesp.mynotebook.domain.repository.notes.NoteRepository
@@ -25,7 +26,10 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideNoteRepository(api: ApiService): NoteRepository = NoteRepositoryImpl(api)
+    fun provideNoteRepository(
+        api: ApiService,
+        noteLocalDataSource: NoteLocalDataSource
+    ): NoteRepository = NoteRepositoryImpl(api, noteLocalDataSource)
 
     @Provides
     @Singleton

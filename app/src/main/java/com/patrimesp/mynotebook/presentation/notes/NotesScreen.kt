@@ -26,7 +26,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -56,12 +55,9 @@ fun NotesScreen(
 ) {
     val uiState by notesViewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        notesViewModel.getNotes()
-    }
     NotesContent(
         uiState = uiState,
-        onTextChanged = { notesViewModel.onTextChanged(it) },//es lo mismo que la notacion de dos puntos notesViewModel::addNote
+        onTextChanged = notesViewModel::onTextChanged,
         onShowDialogChanged = { notesViewModel.onShowDialogChanged(it) },
         onNoteAdded = notesViewModel::addNote,
         onNoteDeleted = { notesViewModel.deleteNote(it) }

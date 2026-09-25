@@ -10,32 +10,46 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class NotesViewModel @Inject constructor(
-    val addNoteUseCase: AddNoteUseCase,
-    val deleteNoteUseCase: DeleteNoteUseCase,
-    val getNotesUseCase: GetNotesUseCase
+    private val addNoteUseCase: AddNoteUseCase,
+    private val deleteNoteUseCase: DeleteNoteUseCase,
+    private val getNotesUseCase: GetNotesUseCase
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow(NotesUiState())
     val uiState: StateFlow<NotesUiState> = _uiState.asStateFlow()
 
-    fun getNotes(): List<Note> {
-        var notes: List<Note> = emptyList()
+    init {
+        observeNotes()
+        refreshNotes()
+    }
+
+    private fun observeNotes() {
         viewModelScope.launch {
-            _uiState.update { it.copy(loading = true) }
+            getNotesUseCase().collectLatest { notes ->
+                _uiState.update { state ->
+                    state.copy(notes = notes)
+                }
+            }
+        }
+    }
+
+    private fun refreshNotes() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(loading = true, error = null) }
             try {
-                notes = getNotesUseCase()
-                _uiState.update { state -> state.copy(loading = false, notes = notes) }
+                getNotesUseCase.refresh()
+                _uiState.update { it.copy(loading = false) }
             } catch (error: Exception) {
                 _uiState.update { state -> state.copy(loading = false, error = error.message) }
             }
         }
-        return notes
     }
 
     fun addNote(text: String) {
@@ -46,9 +60,8 @@ class NotesViewModel @Inject constructor(
             _uiState.update { state -> state.copy(loading = true) }
             try {
                 addNoteUseCase(trimmedText)
-                val notes = getNotes()
                 _uiState.update { state ->
-                    state.copy(loading = false, notes = notes, showDialog = false, text = "")
+                    state.copy(loading = false, showDialog = false, text = "")
                 }
             } catch (error: Exception) {
                 _uiState.update { state -> state.copy(loading = false, error = error.message) }
@@ -61,9 +74,8 @@ class NotesViewModel @Inject constructor(
             _uiState.update { state -> state.copy(loading = true) }
             try {
                 deleteNoteUseCase(noteId)
-                val notes = getNotes()
                 _uiState.update { state ->
-                    state.copy(loading = false, notes = notes, showDialog = false, text = "")
+                    state.copy(loading = false, showDialog = false, text = "")
                 }
             } catch (error: Exception) {
                 _uiState.update { state -> state.copy(loading = false, error = error.message) }

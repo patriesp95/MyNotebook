@@ -1,4 +1,4 @@
-package com.patrimesp.mynotebook.data.datasource.api
+package com.patrimesp.mynotebook.data.api
 
 import com.patrimesp.mynotebook.data.request.notes.NoteRequest
 import com.patrimesp.mynotebook.data.response.notes.NoteDataResponse
